@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+
+<style type="text/css">
+
+body{ margin:0; padding:0; background:black; }
+#tile_holder{ margin:0 auto; }
+.tile{ position:relative; width:78px; height:48px; background:black; border:1px solid #151515; overflow:hidden; float:left; }
+.tile_cover{ position:absolute; width:78px; height:48px; background:#525252; z-index:2; top:0; right:0; }
+.inner_tile{ position:absolute; width:68px; height:38px; background:#212121; z-index:1;
+	border-left:5px solid #323232; border-top:5px solid #1B1B1B; border-right:5px solid #585858; border-bottom:5px solid #969696;
+}
+
+</style>
+
+</head>
+
+<body>
+
+	<div id='tile_holder'></div>
+
+</body>
+
+<script src='jquery-1.11.2.min.js'></script>
+<script src='jquery.transit.min.js'></script>
+
+<script>
+var docW, docH;
+var rowNum, colNum;
+var oldPos = { x: -1, y: -1 };
+
+$(window).load(function(){
+	$(window).resize(function () {
+		setPos();
+	});
+	setPos();
+});
+
+function setTiles(){
+	for(var i=0; i<colNum*rowNum; i++){
+		var tile = $("<div class='tile'><div class='tile_cover'></div><div class='inner_tile'></div></div>");
+		$('#tile_holder').append(tile);
+		$(document).on('mousemove',function(e){
+			oldPos.x = e.pageX;
+			oldPos.y = e.pageY;
+			//console.log('oldPos.x :: ' + oldPos.x);
+			//console.log('oldPos.y :: ' + oldPos.y);
+		});
+		$(tile).on('mouseenter',function( e ){
+			//console.log('oldPos.x :: ' + oldPos.x);
+			//console.log('newPos.x :: ' + e.pageX);
+			transRight = 0;
+			transTop = 0;
+			if( e.pageX < oldPos.x ){
+				transRight = 80;
+			}
+			if( e.pageX > oldPos.x ){
+				transRight = -80;
+			}
+			if( e.pageY < oldPos.y ){
+				transTop = -50;
+			}
+			if( e.pageY > oldPos.y ){
+				transTop = 50;
+			}
+			if( Math.abs( e.pageX - oldPos.x ) < Math.abs( e.pageY - oldPos.y ) ){
+				$(this).find('.tile_cover').transition({top:transTop},250,'ease');
+			}else{
+				$(this).find('.tile_cover').transition({right:transRight},250,'ease');
+			}
+		});
+		$(tile).on('mouseleave',function(){
+			$(this).find('.tile_cover').transition({top:0, right:0},250,'ease');
+		});
+	}
+}
+
+function setPos(){
+	$('#tile_holder').empty();
+	docW = $(window).width();
+	docH = $(window).height();
+	colNum = Math.floor(docW / 80 );
+	rowNum = Math.floor(docH / 50 );
+	$('#tile_holder').css({
+		'width' : 80*colNum,
+		'margin-top' : (docH - rowNum*50)*0.5
+	});
+	setTiles();
+}
+
+</script>
+
+
+</html>
